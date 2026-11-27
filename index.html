@@ -1,541 +1,462 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Save to All</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0284c7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Savefiy – Free Video Downloader</title>
+<style>
+:root{
+  --bg:#f4f7fb; --surface:#fff; --text:#0f172a; --muted:#5b6b82; --line:#e2e8f0;
+  --brand:#0284c7; --brand-ink:#fff; --brand-soft:#e0f2fe;
+  --ok:#15803d; --ok-bg:#dcfce7; --err:#b91c1c; --err-bg:#fee2e2;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0b1220;--surface:#131c2e;--text:#e8eefc;--muted:#93a4c0;--line:#243049;
+    --brand:#38bdf8;--brand-ink:#04263a;--brand-soft:#10304a;--ok:#4ade80;--ok-bg:#12341f;--err:#fca5a5;--err-bg:#3b1515;
+    --shadow:none}
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Devanagari",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.55;min-height:100vh;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 
-        body {
-            background: #0f172a;
-            background: linear-gradient(135deg, #0f172a 0%, #312e81 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 15px;
-            position: relative;
-            overflow: hidden;
-        }
+/* Header */
+.header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.header-in{max-width:520px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center}
+.brand b{display:block;font-size:1.1rem;letter-spacing:-.01em;line-height:1.1}
+.brand small{color:var(--muted);font-size:.75rem}
+.icon-btn{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center}
+.icon-btn:active{transform:scale(.95)}
 
-        .top-bar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            left: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-        }
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
 
-        .lang-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
-        }
+/* Hero */
+.hero h1{font-size:1.7rem;line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
+.hero p{color:var(--muted);font-size:.95rem;margin-bottom:18px}
 
-        .lang-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.field{display:flex;gap:8px}
+.input-wrap{position:relative;flex:1}
+.input-wrap input{width:100%;height:48px;padding-block:0;padding-inline:14px 40px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);font-size:1rem}
+.input-wrap input:focus{border-color:var(--brand);outline:none;box-shadow:0 0 0 3px var(--brand-soft)}
+.clear{position:absolute;inset-inline-end:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;border-radius:50%;background:var(--line);color:var(--muted);cursor:pointer;display:none}
+.paste{height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;cursor:pointer}
+.detected{min-height:26px;margin:10px 0 12px;font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.detected .tag{background:var(--brand-soft);color:var(--brand);padding:2px 10px;border-radius:999px;font-weight:600}
+.go{width:100%;height:50px;border:0;border-radius:12px;background:var(--brand);color:var(--brand-ink);font-weight:700;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.go:active{transform:scale(.99)}
+.go[disabled]{opacity:.7;cursor:progress}
+.spin{width:18px;height:18px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .7s linear infinite;display:none}
+.go.busy .spin{display:block}
+@keyframes r{to{transform:rotate(360deg)}}
 
-        .menu-icon {
-            font-size: 24px;
-            color: white;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 6px 12px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s;
-        }
+.status{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;font-size:.92rem;font-weight:600}
+.status.show{display:block}
+.status.error{background:var(--err-bg);color:var(--err)}
+.status.success{background:var(--ok-bg);color:var(--ok)}
+.status a{display:block;margin-top:10px;padding:11px;border-radius:10px;background:var(--ok);color:var(--surface);text-align:center;text-decoration:none;font-weight:700}
 
-        .menu-icon:active {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0.95);
-        }
+.supported{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.supported span{font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}
 
-        .container {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 35px 20px 30px 20px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            z-index: 1;
-        }
+/* Sections */
+section{margin-top:28px}
+section>h2{font-size:1.05rem;margin-bottom:12px;letter-spacing:-.01em}
+.steps{list-style:none;counter-reset:s;display:grid;gap:10px}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;font-size:.92rem;color:var(--muted)}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:.8rem;display:grid;place-items:center}
 
-        h1 {
-            color: #1e293b;
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 800;
-        }
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--muted);font-size:1.2rem;line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 16px 16px;color:var(--muted);font-size:.88rem}
+details a{color:var(--brand);font-weight:600}
 
-        .tagline {
-            color: #64748b;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-            font-weight: 500;
-        }
+footer{margin-top:28px;text-align:center;color:var(--muted);font-size:.78rem}
 
-        .platforms {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
+/* Menu sheet */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(2,6,23,.55);display:none;align-items:flex-end;justify-content:center}
+.sheet.open{display:flex}
+.sheet-in{width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding:10px 0 6px}
+.sheet-head h2{font-size:1.05rem}
+.row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line);font-weight:500}
+.pill{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 14px;font-weight:600;cursor:pointer}
 
-        .platform {
-            background: #f8fafc;
-            padding: 8px 14px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            color: #334155;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .platform img {
-            width: 18px;
-            height: 18px;
-            object-fit: contain;
-        }
-
-        /* Naya Input Wrapper for Clear Button */
-        .input-wrapper {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .input-box {
-            width: 100%;
-            padding: 16px 40px 16px 16px; /* Right padding badha di gayi hai taaki text clear button ke neeche na aaye */
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            background: #f8fafc;
-            color: #1e293b;
-        }
-
-        .input-box:focus {
-            border-color: #6366f1;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-        }
-
-        /* Clear Button Styling */
-        .clear-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #e2e8f0;
-            color: #64748b;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            display: none; /* Default me chhupa rahega */
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .clear-btn:hover {
-            background: #cbd5e1;
-            color: #ef4444;
-        }
-
-        .download-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        .download-btn:active {
-            transform: scale(0.96);
-        }
-
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 12px;
-            display: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.show { display: block; }
-        .message.error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .message.loading { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
-        .message.success { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
-
-        .download-link {
-            display: block;
-            margin-top: 10px;
-            padding: 12px;
-            background: #16a34a;
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        .settings-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            backdrop-filter: blur(3px);
-        }
-
-        .settings-modal.active {
-            display: flex;
-        }
-
-        .settings-content {
-            background: #ffffff;
-            width: 85%;
-            max-width: 350px;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
-        }
-
-        .settings-header h2 {
-            font-size: 1.2rem;
-            color: #1e293b;
-        }
-
-        .close-btn {
-            background: #f1f5f9;
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: #64748b;
-            cursor: pointer;
-        }
-
-        .feature-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
-            color: #334155;
-            font-weight: 500;
-        }
-
-        .feature-item:last-child {
-            border-bottom: none;
-        }
-
-        .feature-btn {
-            background: #e0e7ff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            color: #4338ca;
-            cursor: pointer;
-            font-weight: bold;
-        }
-    </style>
+.quality{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;font-size:.85rem;color:var(--muted);font-weight:600}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:7px 12px;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink)}
+.rh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rh h2{margin:0}
+.hist{list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.hist li{min-width:0}
+.hist button{width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;text-align:start}
+.hist .tag{flex:none;background:var(--brand-soft);color:var(--brand);padding:2px 9px;border-radius:999px;font-size:.75rem;font-weight:600}
+.hist .u{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem;color:var(--muted);direction:ltr}
+select.pill{max-width:170px}
+.result{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.thumb{aspect-ratio:16/9;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.rbody{padding:14px 16px 16px}
+.rtitle{font-weight:700;line-height:1.3;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.rmeta{font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.qrow{font-size:.85rem;color:var(--muted);font-weight:600;margin-bottom:8px}
+.result .seg{margin-bottom:14px}
+.result .seg button{flex:1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <button class="lang-btn" id="langBtn" onclick="toggleLanguage()">🌐 हिंदी</button>
-        <div class="menu-icon" onclick="toggleSettings()">☰</div>
+<header class="header">
+  <div class="header-in">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+      </div>
+      <div><b>Savefiy</b><small data-i18n="tagline">Free video downloader</small></div>
     </div>
+    <button class="icon-btn" id="menuBtn" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </div>
+</header>
 
-    <div class="container">
-        <h1><span>📥</span> Save to All</h1>
-        <p class="tagline" id="tagline">Video Downloader - 100% Free</p>
+<main>
+  <div class="hero">
+    <h1 data-i18n="heroTitle">Save videos in one tap</h1>
+    <p data-i18n="heroSub">Paste a public video link and download it to your phone.</p>
+  </div>
 
-        <div class="platforms">
-            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Insta"> Instagram</span>
-            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB"> Facebook</span>
-            <span class="platform"><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YT"> YouTube</span>
-            <span class="platform">🎵 Moj</span>
-        </div>
-
-        <!-- Updated Input area with Clear Button -->
-        <div class="input-wrapper">
-            <input type="text" class="input-box" id="urlInput" placeholder="Paste video link here..." autocomplete="off" oninput="toggleClearBtn()">
-            <button class="clear-btn" id="clearBtn" onclick="clearInput()">✖</button>
-        </div>
-
-        <button class="download-btn" onclick="handleDownload()" id="downloadBtn">
-            <span>⬇️</span> <span id="btnText">Download</span>
-        </button>
-
-        <div class="message" id="message"></div>
+  <div class="tool">
+    <div class="field">
+      <div class="input-wrap">
+        <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" data-i18n-ph="placeholder" placeholder="Paste video link">
+        <button class="clear" id="clear" aria-label="Clear">✕</button>
+      </div>
+      <button class="paste" id="paste" data-i18n="paste">Paste</button>
     </div>
+    <div class="detected" id="detected" aria-live="polite"></div>
+    <button class="go" id="go"><span class="spin"></span><span id="goText" data-i18n="download">Download</span></button>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </div>
 
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-header">
-                <h2 id="settingsTitle">⚙️ Settings & Features</h2>
-                <button class="close-btn" onclick="toggleSettings()">✖</button>
-            </div>
-            
-            <div class="feature-item">
-                <span id="feat1">📖 How to Use</span>
-                <button class="feature-btn" onclick="showHowToUse()">View</button>
-            </div>
-            
-            <div class="feature-item">
-                <span id="feat2">🛡️ Privacy & Safety</span>
-                <button class="feature-btn" onclick="showPrivacy()">View</button>
-            </div>
-
-            <div class="feature-item">
-                <span id="feat5">📧 Contact Us</span>
-                <button class="feature-btn" onclick="showContact()">View</button>
-            </div>
-
-            <div class="feature-item">
-                <span id="feat3">🗑️ Download History</span>
-                <button class="feature-btn" onclick="clearHistory()">Clear</button>
-            </div>
-
-            <div class="feature-item">
-                <span id="feat4">📢 Share App</span>
-                <button class="feature-btn" onclick="shareApp()">Share</button>
-            </div>
-
-            <div style="text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 15px;">Version 2.0.0 | Save to All</div>
-        </div>
+  <div class="result" id="result" hidden>
+    <div class="thumb" id="thumb"></div>
+    <div class="rbody">
+      <div class="rtitle" id="rtitle"></div>
+      <div class="rmeta" id="rmeta"></div>
+      <div class="qrow" id="qLabel" data-i18n="quality">Quality</div>
+      <div class="seg" id="seg" role="group" aria-labelledby="qLabel"><button data-q="360" aria-pressed="false">360p</button><button data-q="720" aria-pressed="true">720p</button><button data-q="1080" aria-pressed="false">1080p</button><button data-q="audio" aria-pressed="false">MP3</button></div>
+      <button class="go" id="save"><span class="spin"></span><span id="saveText">Save video</span></button>
+      <div class="status" id="status2" role="status" aria-live="polite"></div>
     </div>
+  </div>
 
-    <script>
-        const translations = {
-            en: {
-                tagline: "Video Downloader - 100% Free",
-                placeholder: "Paste video link here...",
-                btnText: "Download",
-                emptyError: "❌ Please paste a video link first!",
-                invalidError: "❌ This doesn't look like a valid link!",
-                loading: "⏳ Processing video...",
-                success: "✅ Video is ready!<br><a href='#' class='download-link' onclick='return false;'>⬇️ Download Here</a>",
-                langBtn: "🌐 हिंदी",
-                settingsTitle: "⚙️ Settings & Features",
-                feat1: "📖 How to Use",
-                feat2: "🛡️ Privacy & Safety",
-                feat3: "🗑️ Download History",
-                feat4: "📢 Share App",
-                feat5: "📧 Contact Us",
-                howToUseMsg: "1. Open Instagram, Facebook, YouTube or Moj.\n2. Copy the video link.\n3. Paste the link in the app.\n4. Click Download and save!",
-                privacyMsg: "We do not collect any personal data. All videos are processed directly from their platforms. Your privacy is 100% safe with us.",
-                contactMsg: "For any queries or support, contact us at:\n\ngrowwithsahani@gmail.com",
-                clearMsg: "No history found!",
-                shareMsg: "Sharing not supported on this browser."
-            },
-            hi: {
-                tagline: "वीडियो डाउनलोडर - बिल्कुल फ्री",
-                placeholder: "वीडियो लिंक यहाँ पेस्ट करें...",
-                btnText: "डाउनलोड",
-                emptyError: "❌ कृपया पहले वीडियो लिंक पेस्ट करें!",
-                invalidError: "❌ यह सही लिंक नहीं लग रहा है!",
-                loading: "⏳ वीडियो प्रोसेस हो रहा है...",
-                success: "✅ वीडियो तैयार है!<br><a href='#' class='download-link' onclick='return false;'>⬇️ यहाँ से डाउनलोड करें</a>",
-                langBtn: "🌐 English",
-                settingsTitle: "⚙️ सेटिंग्स और फीचर्स",
-                feat1: "📖 इस्तेमाल कैसे करें",
-                feat2: "🛡️ प्राइवेसी और सुरक्षा",
-                feat3: "🗑️ डाउनलोड हिस्ट्री",
-                feat4: "📢 ऐप शेयर करें",
-                feat5: "📧 संपर्क करें",
-                howToUseMsg: "1. Instagram, Facebook, YouTube या Moj खोलें।\n2. वीडियो का लिंक कॉपी करें।\n3. ऐप में लिंक पेस्ट करें।\n4. डाउनलोड पर क्लिक करें और सेव करें!",
-                privacyMsg: "हम आपका कोई भी पर्सनल डेटा नहीं इकट्ठा करते। सारे वीडियो सीधे उनके प्लेटफॉर्म से प्रोसेस होते हैं। आपकी प्राइवेसी हमारे साथ 100% सुरक्षित है।",
-                contactMsg: "किसी भी सवाल या सहायता के लिए हमसे संपर्क करें:\n\ngrowwithsahani@gmail.com",
-                clearMsg: "कोई हिस्ट्री नहीं मिली!",
-                shareMsg: "शेयर करने के लिए आपका ब्राउज़र सपोर्ट नहीं करता।"
-            }
-        };
+  <div class="supported" aria-label="Supported platforms">
+    <span>Facebook</span><span>Pinterest</span>
+  </div>
 
-        let currentLang = 'en'; 
+  <section id="recent" hidden>
+    <div class="rh"><h2 data-i18n="recent">Recent links</h2><button class="pill" id="clearHist" data-i18n="clear">Clear</button></div>
+    <ul class="hist" id="hist"></ul>
+  </section>
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'hi' : 'en';
-            updateLanguage();
-        }
+  <section id="how">
+    <h2 data-i18n="howTitle">How it works</h2>
+    <ol class="steps" id="steps"></ol>
+  </section>
 
-        function updateLanguage() {
-            const t = translations[currentLang];
-            document.getElementById('tagline').innerText = t.tagline;
-            document.getElementById('urlInput').placeholder = t.placeholder;
-            document.getElementById('btnText').innerText = t.btnText;
-            document.getElementById('langBtn').innerText = t.langBtn;
-            document.getElementById('settingsTitle').innerText = t.settingsTitle;
-            document.getElementById('feat1').innerText = t.feat1;
-            document.getElementById('feat2').innerText = t.feat2;
-            document.getElementById('feat3').innerText = t.feat3;
-            document.getElementById('feat4').innerText = t.feat4;
-            document.getElementById('feat5').innerText = t.feat5;
-            document.getElementById('message').className = 'message';
-        }
+  <section id="info">
+    <h2 data-i18n="infoTitle">Good to know</h2>
+    <details><summary data-i18n="privTitle">Privacy policy</summary><p data-i18n="privBody"></p></details>
+    <details><summary data-i18n="termsTitle">Terms of use</summary><p data-i18n="termsBody"></p></details>
+    <details><summary data-i18n="discTitle">Disclaimer</summary><p data-i18n="discBody"></p></details>
+    <details id="contact"><summary data-i18n="contactTitle">Contact us</summary><p><span data-i18n="contactBody"></span><br><a href="mailto:growwithsahani@gmail.com">growwithsahani@gmail.com</a></p></details>
+  </section>
 
-        // Clear Button Show/Hide Logic
-        function toggleClearBtn() {
-            const input = document.getElementById('urlInput');
-            const clearBtn = document.getElementById('clearBtn');
-            if (input.value.length > 0) {
-                clearBtn.style.display = 'flex';
-            } else {
-                clearBtn.style.display = 'none';
-            }
-        }
+  <footer>© <span id="yr"></span> Savefiy</footer>
+</main>
 
-        // Clear Input Function
-        function clearInput() {
-            const input = document.getElementById('urlInput');
-            input.value = '';
-            toggleClearBtn();
-            input.focus(); // Wapas typing ke liye focus
-            document.getElementById('message').className = 'message'; // Message box hide kar do
-        }
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet-in">
+    <div class="sheet-head">
+      <h2 id="sheetTitle" data-i18n="menuTitle">Menu</h2>
+      <button class="icon-btn" id="closeBtn" aria-label="Close">✕</button>
+    </div>
+    <div class="row"><label for="langSel" data-i18n="language">Language</label><select class="pill" id="langSel"></select></div>
+    <div class="row"><span data-i18n="howTitle">How it works</span><button class="pill" data-go="how" data-i18n="view">View</button></div>
+    <div class="row"><span data-i18n="privTitle">Privacy policy</span><button class="pill" data-go="info" data-i18n="view">View</button></div>
+    <div class="row"><span data-i18n="contactTitle">Contact us</span><button class="pill" data-go="contact" data-i18n="view">View</button></div>
+    <div class="row"><span data-i18n="shareTitle">Share app</span><button class="pill" id="shareBtn" data-i18n="share">Share</button></div>
+  </div>
+</div>
 
-        function handleDownload() {
-            const url = document.getElementById('urlInput').value.trim();
-            const messageBox = document.getElementById('message');
-            const t = translations[currentLang];
-            messageBox.className = 'message';
+<script>
+/* ---- Config: set API_URL to your backend. Expected response: { "download_url": "https://..." } ---- */
+const CONFIG = { API_URL: "https://savefiy-api.onrender.com/download", APP_NAME: "Savefiy" };
 
-            if (url === '') {
-                messageBox.classList.add('error', 'show');
-                messageBox.innerHTML = t.emptyError;
-                return;
-            }
+const T = {
+  en:{
+    tagline:"Free video downloader", heroTitle:"Save videos in one tap",
+    heroSub:"Paste a public video link and download it to your phone.",
+    placeholder:"Paste video link", paste:"Paste", download:"Download", working:"Processing…",
+    howTitle:"How it works", infoTitle:"Good to know",
+    steps:["Open Facebook or Pinterest.","Copy the link of the video you want.","Paste it above and tap Download.","The video is saved to your phone."],
+    privTitle:"Privacy policy", privBody:"We don't collect, store or share personal data, and we don't track your downloads. Links are processed only to fetch the video you asked for.",
+    termsTitle:"Terms of use", termsBody:"Use Savefiy for personal, non-commercial purposes only. Download only content you own or have permission to save. You are responsible for how you use downloaded content.",
+    discTitle:"Disclaimer", discBody:"Savefiy is not affiliated with Facebook or Pinterest. All trademarks belong to their respective owners.",
+    contactTitle:"Contact us", contactBody:"Questions, suggestions or problems? Write to us:",
+    menuTitle:"Menu", language:"Language", view:"View", shareTitle:"Share app", share:"Share",
+    empty:"Paste a video link to continue.", invalid:"That doesn't look like a valid link. Check it and try again.",
+    unsupported:"This platform isn't supported yet.", ready:"Your video is ready.", save:"Save video",
+    fail:"Couldn't process this link. Make sure the video is public and try again.",
+    demo:"Download service isn't connected yet.", detected:"Detected:", clipDenied:"Allow clipboard access or paste manually.",
+    copied:"Link copied to clipboard.", quality:"Quality", best:"Best", recent:"Recent links", clear:"Clear", demoPreview:"Demo preview – connect your server to see the real video"
+  },
+  hi:{
+    tagline:"फ्री वीडियो डाउनलोडर", heroTitle:"एक टैप में वीडियो सेव करें",
+    heroSub:"पब्लिक वीडियो का लिंक पेस्ट करें और फोन में डाउनलोड करें।",
+    placeholder:"वीडियो लिंक पेस्ट करें", paste:"पेस्ट", download:"डाउनलोड", working:"प्रोसेस हो रहा है…",
+    howTitle:"कैसे काम करता है", infoTitle:"ज़रूरी जानकारी",
+    steps:["Facebook या Pinterest खोलें।","जिस वीडियो को सेव करना है उसका लिंक कॉपी करें।","ऊपर पेस्ट करें और डाउनलोड दबाएँ।","वीडियो आपके फोन में सेव हो जाएगा।"],
+    privTitle:"प्राइवेसी पॉलिसी", privBody:"हम कोई पर्सनल डेटा इकट्ठा, स्टोर या शेयर नहीं करते और आपकी डाउनलोड हिस्ट्री ट्रैक नहीं करते। लिंक सिर्फ आपका मांगा हुआ वीडियो लाने के लिए प्रोसेस होता है।",
+    termsTitle:"उपयोग की शर्तें", termsBody:"Savefiy का उपयोग केवल निजी और गैर-व्यावसायिक कार्यों के लिए करें। सिर्फ वही कंटेंट डाउनलोड करें जो आपका हो या जिसकी अनुमति हो। डाउनलोड किए गए कंटेंट के उपयोग की ज़िम्मेदारी आपकी है।",
+    discTitle:"डिस्क्लेमर", discBody:"Savefiy का Facebook या Pinterest से कोई संबंध नहीं है। सभी ट्रेडमार्क उनके मालिकों के हैं।",
+    contactTitle:"संपर्क करें", contactBody:"सवाल, सुझाव या समस्या? हमें लिखें:",
+    menuTitle:"मेन्यू", language:"भाषा", view:"देखें", shareTitle:"ऐप शेयर करें", share:"शेयर",
+    empty:"आगे बढ़ने के लिए वीडियो लिंक पेस्ट करें।", invalid:"यह सही लिंक नहीं लग रहा। जाँचकर दोबारा कोशिश करें।",
+    unsupported:"यह प्लेटफॉर्म अभी सपोर्ट नहीं है।", ready:"आपका वीडियो तैयार है।", save:"वीडियो सेव करें",
+    fail:"यह लिंक प्रोसेस नहीं हो सका। वीडियो पब्लिक है या नहीं जाँचें और दोबारा कोशिश करें।",
+    demo:"डाउनलोड सर्विस अभी जुड़ी नहीं है।", detected:"पहचाना गया:", clipDenied:"क्लिपबोर्ड की अनुमति दें या हाथ से पेस्ट करें।",
+    copied:"लिंक कॉपी हो गया।", quality:"क्वालिटी", best:"बेस्ट", recent:"हाल के लिंक", clear:"साफ़ करें"
+  },
+  /* Legal texts (privBody, termsBody, discBody, contactBody) fall back to English until translated. */
+  es:{tagline:"Descargador de videos gratis",heroTitle:"Guarda videos con un toque",heroSub:"Pega el enlace de un video público y descárgalo en tu teléfono.",placeholder:"Pega el enlace del video",paste:"Pegar",download:"Descargar",working:"Procesando…",howTitle:"Cómo funciona",infoTitle:"Información útil",steps:["Abre la app y copia el enlace del video.","Pégalo arriba.","Toca Descargar.","El video se guarda en tu teléfono."],privTitle:"Política de privacidad",termsTitle:"Términos de uso",discTitle:"Aviso legal",contactTitle:"Contacto",menuTitle:"Menú",language:"Idioma",view:"Ver",shareTitle:"Compartir app",share:"Compartir",empty:"Pega un enlace de video para continuar.",invalid:"El enlace no parece válido. Revísalo e inténtalo de nuevo.",unsupported:"Esta plataforma aún no es compatible.",ready:"Tu video está listo.",save:"Guardar video",fail:"No se pudo procesar el enlace. Comprueba que el video sea público.",demo:"El servicio de descarga aún no está conectado.",detected:"Detectado:",clipDenied:"Permite el acceso al portapapeles o pega manualmente.",copied:"Enlace copiado.",quality:"Calidad",best:"Mejor",recent:"Enlaces recientes",clear:"Borrar"},
+  pt:{tagline:"Baixador de vídeos grátis",heroTitle:"Salve vídeos com um toque",heroSub:"Cole o link de um vídeo público e baixe no seu celular.",placeholder:"Cole o link do vídeo",paste:"Colar",download:"Baixar",working:"Processando…",howTitle:"Como funciona",infoTitle:"Bom saber",steps:["Abra o app e copie o link do vídeo.","Cole acima.","Toque em Baixar.","O vídeo é salvo no seu celular."],privTitle:"Política de privacidade",termsTitle:"Termos de uso",discTitle:"Aviso legal",contactTitle:"Contato",menuTitle:"Menu",language:"Idioma",view:"Ver",shareTitle:"Compartilhar app",share:"Compartilhar",empty:"Cole um link de vídeo para continuar.",invalid:"Link inválido. Verifique e tente novamente.",unsupported:"Esta plataforma ainda não é compatível.",ready:"Seu vídeo está pronto.",save:"Salvar vídeo",fail:"Não foi possível processar o link. Verifique se o vídeo é público.",demo:"O serviço de download ainda não está conectado.",detected:"Detectado:",clipDenied:"Permita o acesso à área de transferência ou cole manualmente.",copied:"Link copiado.",quality:"Qualidade",best:"Melhor",recent:"Links recentes",clear:"Limpar"},
+  fr:{tagline:"Téléchargeur de vidéos gratuit",heroTitle:"Enregistrez des vidéos en un geste",heroSub:"Collez le lien d'une vidéo publique et téléchargez-la sur votre téléphone.",placeholder:"Collez le lien de la vidéo",paste:"Coller",download:"Télécharger",working:"Traitement…",howTitle:"Comment ça marche",infoTitle:"À savoir",steps:["Ouvrez l'app et copiez le lien de la vidéo.","Collez-le ci-dessus.","Touchez Télécharger.","La vidéo est enregistrée sur votre téléphone."],privTitle:"Confidentialité",termsTitle:"Conditions d'utilisation",discTitle:"Avertissement",contactTitle:"Contact",menuTitle:"Menu",language:"Langue",view:"Voir",shareTitle:"Partager l'app",share:"Partager",empty:"Collez un lien vidéo pour continuer.",invalid:"Ce lien semble invalide. Vérifiez-le et réessayez.",unsupported:"Cette plateforme n'est pas encore prise en charge.",ready:"Votre vidéo est prête.",save:"Enregistrer la vidéo",fail:"Impossible de traiter ce lien. Vérifiez que la vidéo est publique.",demo:"Le service de téléchargement n'est pas encore connecté.",detected:"Détecté :",clipDenied:"Autorisez le presse-papiers ou collez manuellement.",copied:"Lien copié.",quality:"Qualité",best:"Meilleure",recent:"Liens récents",clear:"Effacer"},
+  ar:{tagline:"تنزيل فيديو مجاني",heroTitle:"احفظ الفيديوهات بلمسة واحدة",heroSub:"الصق رابط فيديو عام ونزّله على هاتفك.",placeholder:"الصق رابط الفيديو",paste:"لصق",download:"تنزيل",working:"جارٍ المعالجة…",howTitle:"طريقة الاستخدام",infoTitle:"معلومات مهمة",steps:["افتح التطبيق وانسخ رابط الفيديو.","الصقه في الأعلى.","اضغط تنزيل.","يُحفظ الفيديو على هاتفك."],privTitle:"سياسة الخصوصية",termsTitle:"شروط الاستخدام",discTitle:"إخلاء المسؤولية",contactTitle:"اتصل بنا",menuTitle:"القائمة",language:"اللغة",view:"عرض",shareTitle:"مشاركة التطبيق",share:"مشاركة",empty:"الصق رابط فيديو للمتابعة.",invalid:"الرابط غير صالح. تحقق منه وحاول مرة أخرى.",unsupported:"هذه المنصة غير مدعومة بعد.",ready:"الفيديو جاهز.",save:"حفظ الفيديو",fail:"تعذّرت معالجة الرابط. تأكد أن الفيديو عام.",demo:"خدمة التنزيل غير متصلة بعد.",detected:"تم التعرف:",clipDenied:"اسمح بالوصول إلى الحافظة أو الصق يدويًا.",copied:"تم نسخ الرابط.",quality:"الجودة",best:"الأفضل",recent:"الروابط الأخيرة",clear:"مسح"},
+  id:{tagline:"Pengunduh video gratis",heroTitle:"Simpan video sekali ketuk",heroSub:"Tempel tautan video publik dan unduh ke ponsel Anda.",placeholder:"Tempel tautan video",paste:"Tempel",download:"Unduh",working:"Memproses…",howTitle:"Cara kerja",infoTitle:"Perlu diketahui",steps:["Buka aplikasi dan salin tautan video.","Tempel di atas.","Ketuk Unduh.","Video tersimpan di ponsel Anda."],privTitle:"Kebijakan privasi",termsTitle:"Ketentuan penggunaan",discTitle:"Penafian",contactTitle:"Hubungi kami",menuTitle:"Menu",language:"Bahasa",view:"Lihat",shareTitle:"Bagikan aplikasi",share:"Bagikan",empty:"Tempel tautan video untuk melanjutkan.",invalid:"Tautan tidak valid. Periksa dan coba lagi.",unsupported:"Platform ini belum didukung.",ready:"Video Anda siap.",save:"Simpan video",fail:"Tautan tidak dapat diproses. Pastikan videonya publik.",demo:"Layanan unduh belum terhubung.",detected:"Terdeteksi:",clipDenied:"Izinkan akses papan klip atau tempel manual.",copied:"Tautan disalin.",quality:"Kualitas",best:"Terbaik",recent:"Tautan terbaru",clear:"Hapus"},
+  ru:{tagline:"Бесплатная загрузка видео",heroTitle:"Сохраняйте видео одним касанием",heroSub:"Вставьте ссылку на публичное видео и скачайте его на телефон.",placeholder:"Вставьте ссылку на видео",paste:"Вставить",download:"Скачать",working:"Обработка…",howTitle:"Как это работает",infoTitle:"Полезно знать",steps:["Откройте приложение и скопируйте ссылку на видео.","Вставьте её выше.","Нажмите «Скачать».","Видео сохранится на телефоне."],privTitle:"Конфиденциальность",termsTitle:"Условия использования",discTitle:"Отказ от ответственности",contactTitle:"Контакты",menuTitle:"Меню",language:"Язык",view:"Открыть",shareTitle:"Поделиться приложением",share:"Поделиться",empty:"Вставьте ссылку на видео, чтобы продолжить.",invalid:"Ссылка выглядит неверной. Проверьте и повторите.",unsupported:"Эта платформа пока не поддерживается.",ready:"Видео готово.",save:"Сохранить видео",fail:"Не удалось обработать ссылку. Убедитесь, что видео публичное.",demo:"Сервис загрузки пока не подключён.",detected:"Определено:",clipDenied:"Разрешите доступ к буферу обмена или вставьте вручную.",copied:"Ссылка скопирована.",quality:"Качество",best:"Лучшее",recent:"Недавние ссылки",clear:"Очистить"},
+  tr:{tagline:"Ücretsiz video indirici",heroTitle:"Videoları tek dokunuşla kaydet",heroSub:"Herkese açık bir video bağlantısı yapıştır ve telefonuna indir.",placeholder:"Video bağlantısını yapıştır",paste:"Yapıştır",download:"İndir",working:"İşleniyor…",howTitle:"Nasıl çalışır",infoTitle:"Bilmekte fayda var",steps:["Uygulamayı aç ve video bağlantısını kopyala.","Yukarıya yapıştır.","İndir'e dokun.","Video telefonuna kaydedilir."],privTitle:"Gizlilik politikası",termsTitle:"Kullanım koşulları",discTitle:"Feragat",contactTitle:"İletişim",menuTitle:"Menü",language:"Dil",view:"Gör",shareTitle:"Uygulamayı paylaş",share:"Paylaş",empty:"Devam etmek için bir video bağlantısı yapıştır.",invalid:"Bağlantı geçersiz görünüyor. Kontrol edip tekrar dene.",unsupported:"Bu platform henüz desteklenmiyor.",ready:"Videon hazır.",save:"Videoyu kaydet",fail:"Bağlantı işlenemedi. Videonun herkese açık olduğundan emin ol.",demo:"İndirme hizmeti henüz bağlı değil.",detected:"Algılandı:",clipDenied:"Pano erişimine izin ver veya elle yapıştır.",copied:"Bağlantı kopyalandı.",quality:"Kalite",best:"En iyi",recent:"Son bağlantılar",clear:"Temizle"},
+  de:{tagline:"Kostenloser Video-Downloader",heroTitle:"Videos mit einem Tipp speichern",heroSub:"Link zu einem öffentlichen Video einfügen und aufs Handy laden.",placeholder:"Videolink einfügen",paste:"Einfügen",download:"Herunterladen",working:"Wird verarbeitet…",howTitle:"So funktioniert's",infoTitle:"Gut zu wissen",steps:["App öffnen und Videolink kopieren.","Oben einfügen.","Auf „Herunterladen“ tippen.","Das Video wird auf dem Handy gespeichert."],privTitle:"Datenschutz",termsTitle:"Nutzungsbedingungen",discTitle:"Haftungsausschluss",contactTitle:"Kontakt",menuTitle:"Menü",language:"Sprache",view:"Ansehen",shareTitle:"App teilen",share:"Teilen",empty:"Füge einen Videolink ein, um fortzufahren.",invalid:"Der Link wirkt ungültig. Prüfen und erneut versuchen.",unsupported:"Diese Plattform wird noch nicht unterstützt.",ready:"Dein Video ist bereit.",save:"Video speichern",fail:"Link konnte nicht verarbeitet werden. Ist das Video öffentlich?",demo:"Der Download-Dienst ist noch nicht verbunden.",detected:"Erkannt:",clipDenied:"Zugriff auf die Zwischenablage erlauben oder manuell einfügen.",copied:"Link kopiert.",quality:"Qualität",best:"Beste",recent:"Letzte Links",clear:"Löschen"}
+};
 
-            if (!url.includes('http') && !url.includes('www.')) {
-                messageBox.classList.add('error', 'show');
-                messageBox.innerHTML = t.invalidError;
-                return;
-            }
+/* Labels used when "MP3" (audio) is selected */
+const AUDIO = {
+  en:{saveAudio:"Save audio",readyAudio:"Your audio is ready."},
+  hi:{saveAudio:"ऑडियो सेव करें",readyAudio:"आपका ऑडियो तैयार है।"},
+  es:{saveAudio:"Guardar audio",readyAudio:"Tu audio está listo."},
+  pt:{saveAudio:"Salvar áudio",readyAudio:"Seu áudio está pronto."},
+  fr:{saveAudio:"Enregistrer l'audio",readyAudio:"Votre audio est prêt."},
+  ar:{saveAudio:"حفظ الصوت",readyAudio:"الملف الصوتي جاهز."},
+  id:{saveAudio:"Simpan audio",readyAudio:"Audio Anda siap."},
+  ru:{saveAudio:"Сохранить аудио",readyAudio:"Аудио готово."},
+  tr:{saveAudio:"Sesi kaydet",readyAudio:"Sesin hazır."},
+  de:{saveAudio:"Audio speichern",readyAudio:"Dein Audio ist bereit."}
+};
+Object.keys(AUDIO).forEach(k => Object.assign(T[k], AUDIO[k]));
+const L = () => Object.assign({}, T.en, T[lang]);
+const LANGS = {en:"English",hi:"हिंदी",es:"Español",pt:"Português",fr:"Français",ar:"العربية",id:"Bahasa Indonesia",ru:"Русский",tr:"Türkçe",de:"Deutsch"};
+const PLATFORMS = [
+  ["Facebook",  /(^|\.)facebook\.com$|(^|\.)fb\.watch$|(^|\.)fb\.com$/],
+  ["Pinterest", /(^|\.)pinterest\.[a-z.]+$|(^|\.)pin\.it$/]
+];
 
-            messageBox.classList.add('loading', 'show');
-            messageBox.innerHTML = t.loading;
+const $ = id => document.getElementById(id);
+let lang = "";
+try{ lang = localStorage.getItem("savefiy-lang") || ""; }catch(e){}
+if(!LANGS[lang]){ const n = (navigator.language || "en").slice(0,2).toLowerCase(); lang = LANGS[n] ? n : "en"; }
+let quality = "720";
 
-            setTimeout(function() {
-                messageBox.className = 'message success show';
-                messageBox.innerHTML = t.success;
-            }, 2000);
-        }
+function parseUrl(v){
+  try{
+    const u = new URL(/^https?:\/\//i.test(v) ? v : "https://" + v);
+    return u.hostname.includes(".") ? u : null;
+  }catch(e){ return null; }
+}
+function detect(u){
+  const p = PLATFORMS.find(([, re]) => re.test(u.hostname.toLowerCase()));
+  return p ? p[0] : null;
+}
 
-        function toggleSettings() {
-            const modal = document.getElementById('settingsModal');
-            modal.classList.toggle('active');
-        }
+function applyLang(){
+  const t = L();
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { if(t[el.dataset.i18n] !== undefined) el.textContent = t[el.dataset.i18n]; });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = t[el.dataset.i18nPh]);
+  $("steps").innerHTML = t.steps.map(s => `<li>${s}</li>`).join("");
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  updateSaveLabel();
+  $("langSel").value = lang;
+  $("status").className = "status"; 
+  updateDetected();
+}
+function setLang(code){
+  lang = code;
+  try{ localStorage.setItem("savefiy-lang", lang); }catch(e){}
+  applyLang();
+}
 
-        document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                toggleSettings();
-            }
-        });
+function showStatus(type, html, id = "status"){
+  const s = $(id);
+  s.className = "status show " + type;
+  s.innerHTML = html;
+}
+function esc(s){ return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-        function showHowToUse() {
-            alert(translations[currentLang].howToUseMsg);
-        }
+function updateDetected(){
+  const v = $("url").value.trim();
+  $("clear").style.display = v ? "block" : "none";
+  const box = $("detected");
+  box.textContent = "";
+  if(!v) return;
+  const u = parseUrl(v), name = u && detect(u);
+  if(name){
+    box.innerHTML = `${L().detected} <span class="tag">${name}</span>`;
+  }
+}
 
-        function showPrivacy() {
-            alert(translations[currentLang].privacyMsg);
-        }
+const PLAY = `<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>`;
+const fmt = sec => Math.floor(sec/60) + ":" + String(Math.floor(sec%60)).padStart(2,"0");
+let infoFor = "";
+const saveLabel = () => quality === "audio" ? L().saveAudio : L().save;
+const updateSaveLabel = () => { $("saveText").textContent = saveLabel(); };
 
-        function showContact() {
-            alert(translations[currentLang].contactMsg);
-        }
+async function api(payload){
+  const res = await fetch(CONFIG.API_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
+  if(!res.ok){
+    let d = ""; try{ d = (await res.json()).detail || ""; }catch(e){}
+    const err = new Error("http " + res.status); err.detail = typeof d === "string" ? d : ""; throw err;
+  }
+  return res.json();
+}
+const failMsg = (t, e) => t.fail + (e && e.detail ? `<small style="display:block;margin-top:6px;font-weight:400;opacity:.85;word-break:break-word">${esc(e.detail)}</small>` : "");
+function busy(btn, textId, on, label){ btn.disabled = on; btn.classList.toggle("busy", on); $(textId).textContent = label; }
+function hideResult(){ $("result").hidden = true; infoFor = ""; }
+function showResult(info, u, name){
+  infoFor = u.href;
+  $("thumb").innerHTML = info.thumbnail ? `<img src="${esc(info.thumbnail)}" alt="" referrerpolicy="no-referrer">` : PLAY;
+  $("rtitle").textContent = info.title || name;
+  $("rmeta").textContent = info.demo ? L().demoPreview : [name, info.duration ? fmt(info.duration) : ""].filter(Boolean).join(" · ");
+  $("status2").className = "status";
+  $("result").hidden = false;
+  $("result").scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
 
-        function clearHistory() {
-            alert(translations[currentLang].clearMsg);
-        }
+/* Step 1: check the link and show the video preview with quality options */
+async function handleDownload(){
+  const t = L(), v = $("url").value.trim();
+  if(!v) return showStatus("error", t.empty);
+  const u = parseUrl(v);
+  if(!u) return showStatus("error", t.invalid);
+  const name = detect(u);
+  if(!name) return showStatus("error", t.unsupported);
+  addHist(u.href, name);
+  $("status").className = "status"; hideResult();
+  busy($("go"), "goText", true, t.working);
+  try{
+    const info = CONFIG.API_URL ? await api({ url: u.href, mode: "info" }) : { demo: true };
+    showResult(info, u, name);
+  }catch(e){ showStatus("error", failMsg(t, e)); }
+  finally{ busy($("go"), "goText", false, t.download); }
+}
 
-        function shareApp() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Save to All',
-                    text: 'Best Video Downloader App!',
-                    url: window.location.href
-                }).catch(console.error);
-            } else {
-                alert(translations[currentLang].shareMsg);
-            }
-        }
-    </script>
+/* Step 2: get the file in the chosen quality */
+async function handleSave(){
+  const t = L();
+  $("status2").className = "status";
+  busy($("save"), "saveText", true, t.working);
+  try{
+    if(!CONFIG.API_URL){ await new Promise(r => setTimeout(r, 500)); throw new Error("no-api"); }
+    const data = await api({ url: infoFor, mode: "download", quality });
+    if(!data.download_url) throw new Error("bad-response");
+    showStatus("success", `${quality === "audio" ? t.readyAudio : t.ready}<a href="${esc(data.download_url)}" download rel="noopener">${saveLabel()}</a>`, "status2");
+  }catch(e){
+    showStatus("error", e.message === "no-api" ? t.demo : failMsg(t, e), "status2");
+  }finally{ busy($("save"), "saveText", false, saveLabel()); }
+}
+
+/* Events */
+$("url").addEventListener("input", () => { updateDetected(); const u = parseUrl($("url").value.trim()); if(!u || u.href !== infoFor) hideResult(); });
+$("url").addEventListener("keydown", e => { if(e.key === "Enter") handleDownload(); });
+$("clear").onclick = () => { $("url").value = ""; $("status").className = "status"; hideResult(); updateDetected(); $("url").focus(); };
+$("paste").onclick = async () => {
+  try{ $("url").value = (await navigator.clipboard.readText()).trim(); hideResult(); updateDetected(); }
+  catch(e){ showStatus("error", L().clipDenied); $("url").focus(); }
+};
+$("go").onclick = handleDownload;
+$("save").onclick = handleSave;
+
+const sheet = $("sheet");
+const toggleSheet = open => sheet.classList.toggle("open", open);
+$("menuBtn").onclick = () => toggleSheet(true);
+$("closeBtn").onclick = () => toggleSheet(false);
+sheet.addEventListener("click", e => { if(e.target === sheet) toggleSheet(false); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") toggleSheet(false); });
+$("langSel").innerHTML = Object.entries(LANGS).map(([c,n]) => `<option value="${c}">${n}</option>`).join("");
+$("langSel").onchange = e => setLang(e.target.value);
+document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
+  toggleSheet(false);
+  const el = $(b.dataset.go);
+  if(el.tagName === "DETAILS") el.open = true;
+  el.scrollIntoView({ behavior:"smooth", block:"start" });
+});
+$("shareBtn").onclick = async () => {
+  const data = { title: CONFIG.APP_NAME, text: L().heroSub, url: location.href };
+  try{
+    if(navigator.share) await navigator.share(data);
+    else { await navigator.clipboard.writeText(location.href); showStatus("success", L().copied); toggleSheet(false); }
+  }catch(e){}
+};
+
+/* Quality */
+$("seg").onclick = e => {
+  const b = e.target.closest("button"); if(!b) return;
+  quality = b.dataset.q;
+  updateSaveLabel(); $("status2").className = "status";
+  $("seg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+};
+
+/* Recent links (stored on this device only) */
+const HKEY = "savefiy-history";
+const getHist = () => { try{ return (JSON.parse(localStorage.getItem(HKEY)) || []).filter(x => ["Facebook","Pinterest"].includes(x.name)); }catch(e){ return []; } };
+function addHist(url, name){
+  try{
+    const h = getHist().filter(x => x.url !== url); h.unshift({ url, name });
+    localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 8)));
+  }catch(e){}
+  renderHist();
+}
+function renderHist(){
+  const h = getHist();
+  $("recent").hidden = !h.length;
+  $("hist").innerHTML = h.map((x,i) => `<li><button data-i="${i}"><span class="tag">${esc(x.name)}</span><span class="u">${esc(x.url)}</span></button></li>`).join("");
+}
+$("hist").onclick = e => {
+  const b = e.target.closest("button"); if(!b) return;
+  $("url").value = getHist()[b.dataset.i].url; hideResult(); updateDetected(); window.scrollTo({top:0,behavior:"smooth"});
+};
+$("clearHist").onclick = () => { try{ localStorage.removeItem(HKEY); }catch(e){} renderHist(); };
+
+$("yr").textContent = new Date().getFullYear();
+if("serviceWorker" in navigator){ window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {})); }
+renderHist();
+applyLang();
+</script>
 </body>
 </html>
