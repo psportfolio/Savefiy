@@ -341,11 +341,25 @@ async function api(payload){
   const res = await fetch(CONFIG.API_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
   if(!res.ok){
     let d = ""; try{ d = (await res.json()).detail || ""; }catch(e){}
-    const err = new Error("http " + res.status); err.detail = typeof d === "string" ? d : ""; throw err;
+    const err = new Error("http " + res.status); err.detail = typeof d === "string" ? d : ""; err.status = res.status; throw err;
   }
   return res.json();
 }
-const failMsg = (t, e) => t.fail + (e && e.detail ? `<small style="display:block;margin-top:6px;font-weight:400;opacity:.85;word-break:break-word">${esc(e.detail)}</small>` : "");
+/* Technical error text is hidden from visitors. The owner can see it by opening the site once with ?debug=1 (turn off with ?debug=0). */
+const DEBUG = (() => {
+  try{
+    const q = new URLSearchParams(location.search).get("debug");
+    if(q === "1") localStorage.setItem("savefiy-debug", "1");
+    if(q === "0") localStorage.removeItem("savefiy-debug");
+    return localStorage.getItem("savefiy-debug") === "1";
+  }catch(e){ return false; }
+})();
+const tidy = d => d.replace(/\x1b\[[0-9;]*m/g, "").replace(/^ERROR:\s*/, "").split(/;\s*please report/i)[0].split(/\.?\s*Confirm you are on the latest/i)[0].trim();
+const failMsg = (t, e) => {
+  if(e && e.detail && (e.status === 413 || e.status === 429)) return esc(e.detail);  // our own plain messages (too long / busy)
+  const extra = DEBUG && e && e.detail ? `<small style="display:block;margin-top:6px;font-weight:400;opacity:.85;word-break:break-word">${esc(tidy(e.detail))}</small>` : "";
+  return t.fail + extra;
+};
 function busy(btn, textId, on, label){ btn.disabled = on; btn.classList.toggle("busy", on); $(textId).textContent = label; }
 function hideResult(){ $("result").hidden = true; infoFor = ""; }
 function showResult(info, u, name){
